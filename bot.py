@@ -252,7 +252,7 @@ class ApplicationManager:
                 # keep the bot in "starting" (which makes every update get a 503).
                 schedule_webhook_setup(loop, application)
             loop.run_forever()
-        except BaseException as exc:  # pragma: no cover - environment specific
+        except Exception as exc:  # pragma: no cover - environment specific
             step = getattr(self, "_step", "startup")
             detail = redact(str(exc)) or type(exc).__name__
             self._start_error = redact(f"{step} failed: {detail}")[:300]
