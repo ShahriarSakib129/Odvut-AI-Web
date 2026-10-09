@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Admin · {{ bot_name }}{% endblock %}
+{% block body %}
+<div class="admin-shell" id="admin">
+  <nav class="admin-nav" aria-label="Admin sections">
+    <div class="brand nav-brand"><span class="dot" aria-hidden="true"></span>Admin</div>
+    <button type="button" data-tab="overview" aria-current="page">Overview</button>
+    <button type="button" data-tab="users">Users</button>
+    <button type="button" data-tab="settings">Settings</button>
+    <button type="button" data-tab="memory">Memory &amp; Q&amp;A</button>
+    <button type="button" data-tab="conversations">Conversations</button>
+    <button type="button" data-tab="usage">Usage</button>
+    <button type="button" data-tab="audit">Audit &amp; logs</button>
+    <button type="button" data-tab="diagnostics">Diagnostics</button>
+    <div class="nav-foot small muted">
+      <a href="/">← Back to chat</a><br>
+      <button type="button" id="logout" class="ghost link-btn">Log out</button>
+    </div>
+  </nav>
+  <main class="admin-main" id="admin-main"></main>
+</div>
+<div class="toast hidden" id="toast" role="status"></div>
+<script src="{{ url_for('static', filename='js/common.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/markdown.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/admin.js') }}" defer></script>
+{% endblock %}

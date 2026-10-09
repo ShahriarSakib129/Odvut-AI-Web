@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{{ bot_name }}{% endblock %}
+{% block body %}
+<div class="app" id="app">
+  <aside class="sidebar" id="sidebar" aria-label="Conversations">
+    <div class="brand"><span class="dot" aria-hidden="true"></span>{{ bot_name }}</div>
+    <button class="new-chat primary" id="new-chat" type="button">+ New chat</button>
+    <ul class="conv-list" id="conv-list" aria-label="Your conversations"></ul>
+    <div class="quota" id="quota" aria-live="polite">
+      <div class="muted">Loading usage…</div>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim" aria-hidden="true"></div>
+
+  <section class="main" aria-label="Chat">
+    <header class="topbar">
+      <button class="menu-btn ghost" id="menu-btn" type="button" aria-label="Open conversations" aria-controls="sidebar" aria-expanded="false">☰</button>
+      <h2 id="conv-title">{{ bot_name }}</h2>
+      {% if is_admin %}<a class="badge admin" href="/admin_panel">Admin panel</a>{% endif %}
+      <div class="who">
+        <div class="avatar" id="avatar" aria-hidden="true">{{ (user.display_name or '?')[:1] }}</div>
+        <span class="name" id="who-name">{{ user.display_name }}</span>
+      </div>
+      <button class="ghost" id="logout" type="button">Log out</button>
+    </header>
+
+    <div class="messages" id="messages" role="log" aria-live="polite" aria-label="Messages">
+      <div class="messages-inner" id="messages-inner"></div>
+    </div>
+
+    <form class="composer" id="composer" autocomplete="off">
+      <div class="composer-inner">
+        <div class="composer-row">
+          <label class="sr-only" for="input">Your question</label>
+          <textarea id="input" rows="1" maxlength="2000" placeholder="Ask a question… (Enter to send, Shift+Enter for a new line)"></textarea>
+          <button class="primary send" id="send" type="submit">Send</button>
+        </div>
+        <div class="composer-foot">
+          <span id="hint">Answers can be wrong. Check important information.</span>
+          <span id="count">0 / 2000</span>
+        </div>
+      </div>
+    </form>
+  </section>
+</div>
+<div class="toast hidden" id="toast" role="status"></div>
+<script src="{{ url_for('static', filename='js/common.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/markdown.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/chat.js') }}" defer></script>
+{% endblock %}

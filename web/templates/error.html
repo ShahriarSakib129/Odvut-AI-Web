@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Error · {{ bot_name }}{% endblock %}
+{% block body %}
+<main class="center-page"><section class="card">
+  <h1>Something went wrong</h1>
+  <p>{{ message }}</p>
+  <a href="/">Back to chat</a>
+</section></main>
+{% endblock %}
