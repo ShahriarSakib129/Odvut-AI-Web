@@ -1,0 +1,121 @@
+# ---------------------------------------------------------------------------
+# Render Blueprint for INFO GROUP AI BOT (Telegram bot + website)
+# ---------------------------------------------------------------------------
+#  Deploy (recommended):
+#    1. Push this repository to GitHub (the repo must NOT contain .env files).
+#    2. Render dashboard -> New -> Blueprint -> pick the repository.
+#    3. Render reads this file, creates the web service and asks for every
+#       variable marked `sync: false` (secrets and URLs). Variables marked
+#       `generateValue: true` are created automatically.
+#    4. Before the first start, apply the database migration once (see
+#       docs/WEB_PLATFORM.md, step "Database migration").
+#
+#  Step-by-step guide (Bangla/English): docs/WEB_PLATFORM.md
+#
+#  This is a *web* service (webhook mode + website), not a background worker.
+#  The free plan sleeps when idle; keep it awake with UptimeRobot pinging /health.
+# ---------------------------------------------------------------------------
+services:
+  - type: web
+    name: info-group-ai-bot
+    runtime: python
+    plan: free
+    region: singapore
+    branch: main
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 120 --access-logfile - --error-logfile - app:app
+    healthCheckPath: /health
+    autoDeploy: true
+    # Python version: Render reads `.python-version` (contains "3.11").
+    envVars:
+      # ---- secrets and identity: Render asks for these on first deploy -----
+      - key: BOT_TOKEN                 # from @BotFather (/revoke for a new one)
+        sync: false
+      - key: GROQ_API_KEY              # https://console.groq.com
+        sync: false
+      - key: DATABASE_URL              # Supabase "Session pooler" connection string
+        sync: false
+      - key: PUBLIC_URL                # https://<your-service>.onrender.com (no trailing /)
+        sync: false
+      - key: GROUP_ID                  # Telegram group id, starts with -100
+        sync: false
+      - key: ADMIN_ID                  # your Telegram numeric id (website + bot admin)
+        sync: false
+      - key: TARGET_ADMIN_ID           # optional: admin whose group messages become memory
+        sync: false
+
+      # ---- generated secrets: Render creates random values ----------------
+      - key: WEBHOOK_SECRET
+        generateValue: true
+      - key: WEB_SECRET_KEY            # signs CSRF tokens; keep it private
+        generateValue: true
+
+      # ---- Telegram bot ----------------------------------------------------
+      - key: GROQ_MODEL
+        value: openai/gpt-oss-120b
+      - key: SET_WEBHOOK_ON_STARTUP
+        value: "true"
+      - key: WEBHOOK_REQUIRE_SECRET
+        value: "true"
+      - key: DROP_PENDING_UPDATES
+        value: "true"
+      - key: TRIGGER_ON_MENTION
+        value: "true"
+      - key: TRIGGER_ON_REPLY
+        value: "true"
+      - key: MAX_MEMORY_RESULTS
+        value: "10"
+      - key: MAX_QA_RESULTS
+        value: "5"
+      - key: MAX_CONTEXT_CHARS
+        value: "12000"
+      - key: CACHE_ENABLED
+        value: "true"
+      - key: EMBEDDING_ENABLED
+        value: "true"
+      - key: DB_POOL_MAX
+        value: "4"
+
+      # ---- runtime -----------------------------------------------------------
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: DB_AUTO_MIGRATE           # keep false: migrations run through scripts/migrate.py
+        value: "false"
+
+      # ---- website -------------------------------------------------------------
+      - key: WEB_ENABLED
+        value: "true"
+      - key: WEB_COOKIE_SECURE         # Render serves HTTPS, so cookies must be Secure
+        value: "true"
+      - key: WEB_SESSION_HOURS
+        value: "12"
+      - key: WEB_MAX_CONCURRENT_AI
+        value: "3"
+      - key: WEB_HISTORY_MESSAGES
+        value: "6"
+      - key: WEB_MAX_MESSAGE_CHARS
+        value: "2000"
+      - key: WEB_CHAT_RETENTION_DAYS
+        value: "30"
+
+      # ---- Telegram login and group membership ------------------------------
+      - key: TELEGRAM_AUTH_MAX_AGE_SECONDS
+        value: "300"
+      - key: MEMBERSHIP_RECHECK_SECONDS
+        value: "300"
+      - key: LOGIN_RATE_LIMIT_PER_WINDOW
+        value: "10"
+
+      # ---- quotas (defaults; the admin dashboard can change per user) ------
+      - key: QUOTA_DEFAULT_DAILY_REQUESTS
+        value: "30"
+      - key: QUOTA_DEFAULT_MONTHLY_REQUESTS
+        value: "600"
+      - key: QUOTA_DEFAULT_COOLDOWN_SECONDS
+        value: "0"
+      - key: QUOTA_ADMIN_DAILY_REQUESTS
+        value: "300"
+      - key: QUOTA_ADMIN_MONTHLY_REQUESTS
+        value: "6000"
