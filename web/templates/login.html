@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Log in · {{ bot_name }}{% endblock %}
+{% block body %}
+<main class="center-page">
+  <section class="card" aria-labelledby="login-title">
+    <h1 id="login-title">{{ bot_name }}</h1>
+    <p>Log in with Telegram. Only members of the INFO GROUP can use the AI assistant.</p>
+    <div id="widget" data-bot="{{ bot_username }}" data-auth-url="{{ auth_url }}" aria-live="polite"></div>
+    <div id="status" class="notice{% if error %} bad{% endif %}" role="status">
+      {% if error %}{{ error }}{% else %}Use the Telegram button above. A new login is needed after logout or after the session expires.{% endif %}
+    </div>
+  </section>
+</main>
+<script src="{{ url_for('static', filename='js/common.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/login.js') }}" defer></script>
+{% endblock %}
