@@ -196,10 +196,14 @@ class Permissions:
             if chat_type in GROUP_CHAT_TYPES and not self.in_target_group(message.chat.id):
                 return False, "other_group"
 
+        # Admins may trigger answers by replying/mentioning the bot as well as
+        # using /ask. Do not let admin messages trigger via generic keywords.
         if self.settings.trigger_on_reply and self.is_reply_to_bot(message, bot_id):
             return True, "reply_to_bot"
         if self.settings.trigger_on_mention and self.mentions_bot(text, bot_username):
             return True, "mention"
+        if is_target_admin:
+            return False, "admin_requires_mention_or_reply"
         keyword = self.matches_trigger_keyword(text)
         if keyword:
             return True, f"keyword:{keyword}"

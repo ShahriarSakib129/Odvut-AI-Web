@@ -369,7 +369,7 @@ async def cmd_ping(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return
     started = time.time()
     await _safe_send(update.effective_message,
-                     f"🏓 পং! {(time.time() - started) * 1000:.0f} ms")
+                     f" Ping! {(time.time() - started) * 1000:.0f} ms")
 
 
 async def cmd_whoami(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
