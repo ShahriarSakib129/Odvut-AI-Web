@@ -3,7 +3,7 @@
 {% block body %}
 <div class="app" id="app">
   <aside class="sidebar" id="sidebar" aria-label="Conversations">
-    <div class="brand"><span class="dot" aria-hidden="true"></span>{{ bot_name }}</div>
+    <div class="brand"><span class="brand-mark" aria-hidden="true">O</span><span><strong>Odvut AI</strong><small>Intelligent assistant</small></span></div>
     <button class="new-chat primary" id="new-chat" type="button">+ New chat</button>
     <ul class="conv-list" id="conv-list" aria-label="Your conversations"></ul>
     <div class="quota" id="quota" aria-live="polite">
@@ -16,7 +16,6 @@
     <header class="topbar">
       <button class="menu-btn ghost" id="menu-btn" type="button" aria-label="Open conversations" aria-controls="sidebar" aria-expanded="false">☰</button>
       <h2 id="conv-title">{{ bot_name }}</h2>
-      {% if is_admin %}<a class="badge admin" href="/admin_panel">Admin panel</a>{% endif %}
       <div class="who">
         <div class="avatar" id="avatar" aria-hidden="true">{{ (user.display_name or '?')[:1] }}</div>
         <span class="name" id="who-name">{{ user.display_name }}</span>
@@ -32,11 +31,11 @@
       <div class="composer-inner">
         <div class="composer-row">
           <label class="sr-only" for="input">Your question</label>
-          <textarea id="input" rows="1" maxlength="2000" placeholder="Ask a question… (Enter to send, Shift+Enter for a new line)"></textarea>
+          <textarea id="input" rows="1" maxlength="2000" placeholder="Message Odvut AI…"></textarea>
           <button class="primary send" id="send" type="submit">Send</button>
         </div>
         <div class="composer-foot">
-          <span id="hint">Answers can be wrong. Check important information.</span>
+          <span id="hint">Odvut AI can make mistakes. Verify important information.</span>
           <span id="count">0 / 2000</span>
         </div>
       </div>
