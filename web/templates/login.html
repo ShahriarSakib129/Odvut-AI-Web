@@ -3,8 +3,8 @@
 {% block body %}
 <main class="center-page">
   <section class="card" aria-labelledby="login-title">
-    <h1 id="login-title">{{ bot_name }}</h1>
-    <p>Log in with Telegram. Only members of the INFO GROUP can use the AI assistant.</p>
+    <div class="login-mark" aria-hidden="true">O<span>AI</span></div>\n    <p class="eyebrow">PRIVATE COMMUNITY AI</p>\n    <h1 id="login-title">Welcome to Odvut AI</h1>
+    <p>Sign in securely with Telegram to continue. Access is limited to approved community members and the administrator.</p>
     <div id="widget" data-bot="{{ bot_username }}" data-auth-url="{{ auth_url }}" aria-live="polite"></div>
     <div id="status" class="notice{% if error %} bad{% endif %}" role="status">
       {% if error %}{{ error }}{% else %}Use the Telegram button above. A new login is needed after logout or after the session expires.{% endif %}
