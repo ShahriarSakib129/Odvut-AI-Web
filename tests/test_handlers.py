@@ -257,6 +257,31 @@ class TestAnswerFlow:
         asyncio.run(handlers.on_group_message(update, FakeContext(stack, FakeBot())))
         assert update.effective_message.replies
 
+    @pytest.mark.parametrize("text", [
+        "আজ group এ কী হচ্ছে?",      # "group" is a word from BOT_NAME
+        "info দাও তো",               # "info" is a word from BOT_NAME
+        "meeting কখন, group-এ জানাও",
+    ])
+    def test_ordinary_words_from_bot_name_do_not_trigger(self, stack, text):
+        member = make_user(MEMBER_ID, "member")
+        update = make_group_update(member, text)
+        asyncio.run(handlers.on_group_message(update, FakeContext(stack, FakeBot())))
+        assert update.effective_message.replies == []
+        assert stack.groq.calls == 0
+
+    def test_error_is_not_announced_for_plain_group_chat(self, stack):
+        member = make_user(MEMBER_ID, "member")
+        update = make_group_update(member, "আজ বাজারে কী হচ্ছে?")
+        context = FakeContext(stack, FakeBot())
+        assert handlers._should_announce_error(update, context) is False
+
+    def test_error_is_announced_when_member_asked_the_bot(self, stack):
+        member = make_user(MEMBER_ID, "member")
+        for text in ("/ask BTC?", "@InfoGroupAIBot BTC কেমন?"):
+            update = make_group_update(member, text)
+            context = FakeContext(stack, FakeBot())
+            assert handlers._should_announce_error(update, context) is True, text
+
     def test_duplicate_update_is_ignored(self, stack):
         member = make_user(MEMBER_ID, "member")
         update = make_group_update(member, "@InfoGroupAIBot BTC?", update_id=4242)
