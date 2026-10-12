@@ -369,7 +369,7 @@ async def cmd_ping(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return
     started = time.time()
     await _safe_send(update.effective_message,
-                     f" Ping! {(time.time() - started) * 1000:.0f} ms")
+                     f"🏓 পং! {(time.time() - started) * 1000:.0f} ms")
 
 
 async def cmd_whoami(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -967,12 +967,39 @@ async def on_error(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
     if isinstance(error, (Forbidden, BadRequest)):
         logger.warning("non-retryable Telegram error: %s", error)
     if isinstance(update, Update) and update.effective_message:
+        if not _should_announce_error(update, context):
+            # Ordinary group chatter must stay silent, even when a background
+            # step failed. The error is already logged above.
+            return
         try:
             await update.effective_message.reply_text(
                 "⚠️ সাময়িক সমস্যা হয়েছে। আবার চেষ্টা করো।"
             )
         except TelegramError:
             pass
+
+
+def _should_announce_error(update: Update, context: ContextTypes.DEFAULT_TYPE) -> bool:
+    """Only tell the user about a failure when they actually asked the bot something."""
+    message = update.effective_message
+    chat = update.effective_chat
+    if message is None or chat is None:
+        return False
+    if getattr(chat, "type", "private") not in GROUP_CHAT_TYPES:
+        return True  # private chat: the user is talking to the bot directly
+    text = message.text or message.caption or ""
+    if text.lstrip().startswith("/"):
+        return True  # explicit command
+    try:
+        services = services_of(context)
+        triggered, _reason = services.permissions.is_member_question(
+            message, update.effective_user,
+            bot_id=getattr(context.bot, "id", None),
+            bot_username=getattr(context.bot, "username", None),
+        )
+    except Exception:
+        return False
+    return bool(triggered)
 
 
 # --------------------------------------------------------------------------- #

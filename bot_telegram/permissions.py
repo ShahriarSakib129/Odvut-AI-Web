@@ -151,13 +151,13 @@ class Permissions:
     # trigger detection
     # ------------------------------------------------------------------ #
     def bot_mention_tokens(self, bot_username: str | None) -> list[str]:
-        tokens = []
+        # Only a real Telegram mention counts. Splitting BOT_NAME into words made
+        # ordinary chat ("group", "info") look like a call to the bot.
         if bot_username:
-            tokens.append(f"@{bot_username.lower()}")
-        for name in self.settings.bot_name.split():
-            if len(name) > 3:
-                tokens.append(name.lower())
-        return tokens
+            return [f"@{bot_username.lower()}"]
+        # Username unknown (get_me not finished yet): fall back to the full name only.
+        full_name = " ".join(self.settings.bot_name.split()).lower()
+        return [full_name] if len(full_name) > 3 else []
 
     def mentions_bot(self, text: str | None, bot_username: str | None) -> bool:
         if not text:
@@ -196,14 +196,10 @@ class Permissions:
             if chat_type in GROUP_CHAT_TYPES and not self.in_target_group(message.chat.id):
                 return False, "other_group"
 
-        # Admins may trigger answers by replying/mentioning the bot as well as
-        # using /ask. Do not let admin messages trigger via generic keywords.
         if self.settings.trigger_on_reply and self.is_reply_to_bot(message, bot_id):
             return True, "reply_to_bot"
         if self.settings.trigger_on_mention and self.mentions_bot(text, bot_username):
             return True, "mention"
-        if is_target_admin:
-            return False, "admin_requires_mention_or_reply"
         keyword = self.matches_trigger_keyword(text)
         if keyword:
             return True, f"keyword:{keyword}"
